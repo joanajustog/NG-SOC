@@ -1,3 +1,6 @@
+## Diagrama de flujo – Automatización de respuesta a alertas
+
+```mermaid
 flowchart TD
     A([▶ Inicio]) --> B[[🛡️ TheHive<br/>Recepción de alerta]]
 
