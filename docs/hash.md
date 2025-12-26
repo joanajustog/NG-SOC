@@ -1,3 +1,6 @@
+## Diagrama de flujo – Automatización de respuesta a alertas
+
+```mermaid
 flowchart TD
     A([Inicio]) --> B[Creacion del fichero de prueba EICAR en el endpoint]
     B --> C[Wazuh Agent detecta evento de fichero creado\nRegla 554: File added to the system]
