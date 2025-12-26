@@ -4,7 +4,7 @@
 flowchart TD
     A([Inicio]) --> B[Recepcion de alerta en TheHive]
     B --> C[Extraccion de indicadores: hash del artefacto]
-    C --> D{Se dispone de hash}
+    C --> D{Hash registrado en MISP}
 
     D -- No --> E[Aplicacion de playbook predefinido]
     E --> F[Promocion de alerta a caso en TheHive]
