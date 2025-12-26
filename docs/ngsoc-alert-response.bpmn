@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  id="Definitions_NGSOC"
+  targetNamespace="http://ngsoc/bpmn">
+
+  <bpmn:collaboration id="Collaboration_NGSOC">
+    <bpmn:participant id="Participant_N8N" name="NG-SOC Automation (n8n)" processRef="Process_NGSOC_AlertResponse"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_NGSOC_AlertResponse" name="Automatización de respuesta a alertas" isExecutable="false">
+
+    <!-- Lanes -->
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Orchestrator" name="Orchestrator (n8n)">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReceiveAlert</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ExtractHash</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_HashExists</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ApplyPredefinedPlaybook</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ExecuteCommand</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_CommandCondition</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_MergeDecisionInput</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_FalsePositive</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_GenerateDynamicPlaybook</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreateAutoTasks</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_1</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_TheHive" name="TheHive">
+        <bpmn:flowNodeRef>Task_PromoteToCase_Predef</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreateTask_Predef</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_UpdateCase</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_UpdateAlertStatus</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PromoteToCase_Dynamic</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_VirusTotal" name="VirusTotal">
+        <bpmn:flowNodeRef>Task_QueryVirusTotal</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_AI" name="IA (LLM)">
+        <bpmn:flowNodeRef>Task_AIAnalysis</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <!-- Events -->
+    <bpmn:startEvent id="StartEvent_1" name="Inicio"/>
+    <bpmn:endEvent id="EndEvent_1" name="Fin"/>
+
+    <!-- Core tasks -->
+    <bpmn:serviceTask id="Task_ReceiveAlert" name="Recepción de alerta desde TheHive"/>
+    <bpmn:scriptTask id="Task_ExtractHash" name="Extracción de hash del artefacto"/>
+
+    <bpmn:exclusiveGateway id="Gateway_HashExists" name="¿Existe hash?"/>
+
+    <!-- Branch: NO hash => predefined playbook -->
+    <bpmn:task id="Task_ApplyPredefinedPlaybook" name="Aplicar playbook predefinido"/>
+    <bpmn:serviceTask id="Task_PromoteToCase_Predef" name="Promover alerta a caso (predef.)"/>
+    <bpmn:serviceTask id="Task_CreateTask_Predef" name="Crear tarea (predef.)"/>
+    <bpmn:serviceTask id="Task_ExecuteCommand" name="Ejecutar comando automático"/>
+
+    <bpmn:exclusiveGateway id="Gateway_CommandCondition" name="¿Condición cumplida?"/>
+    <bpmn:serviceTask id="Task_UpdateCase" name="Actualizar caso"/>
+
+    <!-- Branch: YES hash => VT + IA -->
+    <bpmn:serviceTask id="Task_QueryVirusTotal" name="Consulta a VirusTotal"/>
+    <bpmn:serviceTask id="Task_AIAnalysis" name="Análisis automatizado con IA"/>
+    <bpmn:task id="Task_MergeDecisionInput" name="Unificar contexto para decisión"/>
+
+    <bpmn:exclusiveGateway id="Gateway_FalsePositive" name="¿Falso positivo?"/>
+    <bpmn:serviceTask id="Task_UpdateAlertStatus" name="Actualizar estado de la alerta"/>
+
+    <bpmn:task id="Task_GenerateDynamicPlaybook" name="Generar playbook dinámico (IA)"/>
+    <bpmn:serviceTask id="Task_PromoteToCase_Dynamic" name="Promover alerta a caso (dinámico)"/>
+    <bpmn:serviceTask id="Task_CreateAutoTasks" name="Crear tareas automáticas"/>
+
+    <!-- Sequence flows -->
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_ReceiveAlert"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_ReceiveAlert" targetRef="Task_ExtractHash"/>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_ExtractHash" targetRef="Gateway_HashExists"/>
+
+    <!-- No hash -->
+    <bpmn:sequenceFlow id="Flow_NoHash_1" name="No" sourceRef="Gateway_HashExists" targetRef="Task_ApplyPredefinedPlaybook"/>
+    <bpmn:sequenceFlow id="Flow_NoHash_2" sourceRef="Task_ApplyPredefinedPlaybook" targetRef="Task_PromoteToCase_Predef"/>
+    <bpmn:sequenceFlow id="Flow_NoHash_3" sourceRef="Task_PromoteToCase_Predef" targetRef="Task_CreateTask_Predef"/>
+    <bpmn:sequenceFlow id="Flow_NoHash_4" sourceRef="Task_CreateTask_Predef" targetRef="Task_ExecuteCommand"/>
+    <bpmn:sequenceFlow id="Flow_NoHash_5" sourceRef="Task_ExecuteCommand" targetRef="Gateway_CommandCondition"/>
+    <bpmn:sequenceFlow id="Flow_NoHash_6" name="Sí / OK" sourceRef="Gateway_CommandCondition" targetRef="Task_UpdateCase"/>
+    <bpmn:sequenceFlow id="Flow_NoHash_7" name="No / NOK" sourceRef="Gateway_CommandCondition" targetRef="Task_UpdateCase"/>
+    <bpmn:sequenceFlow id="Flow_NoHash_8" sourceRef="Task_UpdateCase" targetRef="EndEvent_1"/>
+
+    <!-- Yes hash -->
+    <bpmn:sequenceFlow id="Flow_Hash_1" name="Sí" sourceRef="Gateway_HashExists" targetRef="Task_QueryVirusTotal"/>
+    <bpmn:sequenceFlow id="Flow_Hash_2" sourceRef="Task_QueryVirusTotal" targetRef="Task_AIAnalysis"/>
+    <bpmn:sequenceFlow id="Flow_Hash_3" sourceRef="Task_AIAnalysis" targetRef="Task_MergeDecisionInput"/>
+    <bpmn:sequenceFlow id="Flow_Hash_4" sourceRef="Task_MergeDecisionInput" targetRef="Gateway_FalsePositive"/>
+
+    <bpmn:sequenceFlow id="Flow_FP_1" name="Sí" sourceRef="Gateway_FalsePositive" targetRef="Task_UpdateAlertStatus"/>
+    <bpmn:sequenceFlow id="Flow_FP_2" sourceRef="Task_UpdateAlertStatus" targetRef="EndEvent_1"/>
+
+    <bpmn:sequenceFlow id="Flow_Threat_1" name="No" sourceRef="Gateway_FalsePositive" targetRef="Task_GenerateDynamicPlaybook"/>
+    <bpmn:sequenceFlow id="Flow_Threat_2" sourceRef="Task_GenerateDynamicPlaybook" targetRef="Task_PromoteToCase_Dynamic"/>
+    <bpmn:sequenceFlow id="Flow_Threat_3" sourceRef="Task_PromoteToCase_Dynamic" targetRef="Task_CreateAutoTasks"/>
+    <bpmn:sequenceFlow id="Flow_Threat_4" sourceRef="Task_CreateAutoTasks" targetRef="EndEvent_1"/>
+
+  </bpmn:process>
+</bpmn:definitions>
