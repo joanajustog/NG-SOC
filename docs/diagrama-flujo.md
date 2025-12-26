@@ -7,20 +7,25 @@ flowchart TD
     B --> C[🔍 Extracción de hash<br/>del artefacto]
     C --> D{❓ ¿Existe hash?}
 
+    %% Rama SIN hash (playbook predefinido)
     D -- ❌ No --> E[📘 Playbook<br/>predefinido]
     E --> F[📂 Promover alerta<br/>a caso]
-    F --> G[📝 Crear tarea<br/>manual]
-    G --> Z([⏹ Fin])
+    F --> G[📝 Crear tarea]
+    G --> H[💻 Ejecutar comando<br/>automático]
+    H --> I{🔎 ¿Condición cumplida?}
+    I --> J[🔄 Actualizar caso]
+    J --> Z([⏹ Fin])
 
-    D -- ✅ Sí --> H[🌐 Consulta a<br/>VirusTotal]
-    H --> I[🤖 Análisis<br/>automatizado con IA]
+    %% Rama CON hash (enriquecimiento)
+    D -- ✅ Sí --> K[🌐 Consulta a<br/>VirusTotal]
+    K --> L[🤖 Análisis<br/>automatizado con IA]
 
-    I --> J{⚖️ ¿Falso positivo?}
+    L --> M{⚖️ ¿Falso positivo?}
 
-    J -- ✅ Sí --> K[🔄 Actualizar estado<br/>de la alerta]
-    K --> Z
-
-    J -- ❌ No --> L[🧠 Playbook dinámico<br/>generado por IA]
-    L --> M[📂 Promover alerta<br/>a caso]
-    M --> N[⚙️ Crear tareas<br/>automáticas]
+    M -- ✅ Sí --> N[🔄 Actualizar estado<br/>de la alerta]
     N --> Z
+
+    M -- ❌ No --> O[🧠 Playbook dinámico<br/>generado por IA]
+    O --> P[📂 Promover alerta<br/>a caso]
+    P --> Q[⚙️ Crear tareas<br/>automáticas]
+    Q --> Z
