@@ -1,23 +1,23 @@
-flowchart LR
-    A[Inicio del workflow] --> B[Recepción de alerta desde TheHive]
+flowchart TD
+    A([▶ Inicio]) --> B[[🛡️ TheHive<br/>Recepción de alerta]]
 
-    B --> C[Extracción de hash del artefacto]
-    C --> D{¿El hash existe?}
+    B --> C[🔍 Extracción de hash<br/>del artefacto]
+    C --> D{❓ ¿Existe hash?}
 
-    D -- Sí --> E[Aplicar playbook predefinido]
-    E --> F[Promover alerta a caso]
-    F --> G[Crear tarea manual]
-    G --> Z[Fin]
+    D -- ❌ No --> E[📘 Playbook<br/>predefinido]
+    E --> F[📂 Promover alerta<br/>a caso]
+    F --> G[📝 Crear tarea<br/>manual]
+    G --> Z([⏹ Fin])
 
-    D -- No --> H[Consulta a VirusTotal]
-    H --> I[Análisis automatizado mediante IA]
+    D -- ✅ Sí --> H[🌐 Consulta a<br/>VirusTotal]
+    H --> I[🤖 Análisis<br/>automatizado con IA]
 
-    I --> J{¿Es falso positivo?}
+    I --> J{⚖️ ¿Falso positivo?}
 
-    J -- Sí --> K[Actualizar estado de la alerta]
-    K --> Z[Fin]
+    J -- ✅ Sí --> K[🔄 Actualizar estado<br/>de la alerta]
+    K --> Z
 
-    J -- No --> L[Generación de playbook dinámico con IA]
-    L --> M[Promover alerta a caso]
-    M --> N[Creación automática de tareas]
-    N --> Z[Fin]
+    J -- ❌ No --> L[🧠 Playbook dinámico<br/>generado por IA]
+    L --> M[📂 Promover alerta<br/>a caso]
+    M --> N[⚙️ Crear tareas<br/>automáticas]
+    N --> Z
