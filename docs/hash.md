@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart TD
-    A([Inicio]) --> B[Creacion del fichero de prueba EICAR en el endpoint]
+    A([Inicio]) --> B[Creacion de fichero endpoint monitorizado]
     B --> C[Wazuh Agent detecta evento de fichero creado\nRegla 554: File added to the system]
     C --> D[Calculo de hashes del fichero\nMD5, SHA1, SHA256]
     D --> E[Envio de datos al modulo de integracion Wazuh-MISP]
