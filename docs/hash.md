@@ -1,4 +1,4 @@
-## Diagrama de flujo – Automatización de respuesta a alertas
+## Integración Wazuh-MISP para FIM
 
 ```mermaid
 flowchart TD
@@ -13,9 +13,4 @@ flowchart TD
     H --> Z([Fin])
 
     G -- Si --> I[Generar alerta correlada en Wazuh\nRegla 100802: MISP file hash matched\nCriticidad alta]
-    I --> J[Envio de alerta a TheHive]
-    J --> K[Creacion de alerta/incidente en TheHive]
-    K --> L[Adjuntar observable: hash del fichero]
-    L --> M[Incluir contexto del endpoint afectado]
-    M --> N[Priorizacion del incidente para triage]
     N --> Z([Fin])
